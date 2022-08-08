@@ -1,6 +1,6 @@
 #include "constants.h"
 #include "TextInterface.h"
-#include <cstdlib>
+#include <cstdlib> // std::exit
 #include <iostream>
 
 void printHelp()
@@ -24,14 +24,8 @@ void fail(std::string_view message)
 int main(int argc, char* argv[])
 {
 	TextInterface notes{};
-	try
-	{
-		notes.status();
-	}
-	catch (const std::runtime_error& ex)
-	{
-		fail(ex.what());
-	}
+	if (!notes.status())
+		fail("Notes file not found or inaccessable.");
 	if (argc <= 1)
 		fail();
 	if (argv[1] == constants::flagDelete)
@@ -59,8 +53,12 @@ int main(int argc, char* argv[])
 			fail("Key cannot be empty.");
 		else if (!argv[3])
 			fail("Note cannot be empty.");
-		if (!notes.add(argv[2], argv[3]))
+		else if (std::strlen(argv[2]) > constants::maxKeySize)
 			fail("Key too long.");
+		if (!notes.add(argv[2], argv[3]))
+		{
+			fail("Out of memory.");
+		}
 	}
 	else
 	{

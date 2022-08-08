@@ -8,13 +8,12 @@
 class TextInterface final
 {
 private:
-	std::fstream noteFile{ constants::noteFilename,
-		std::ios::app | std::ios::out };
+	std::fstream noteFile;
 
 public:
-	TextInterface() = default;
+	TextInterface();
 
-	/* Add a note. Returns false if key is too long. */
+	/* Add a note. Returns false if out of memory. */
 	bool add(std::string_view key, std::string_view noteString);
 	/* Prints every key. */
 	void printKeys() const;
@@ -22,7 +21,8 @@ public:
 	void printAll() const;
 	/* Delete a note. Returns false if key doesn't exist. */
 	bool remove(std::string_view key);
-	void status() const;
+	/* Check the status of file. Returns false if file cannot be accessed. */
+	bool status() const { return static_cast<bool>(noteFile); }
 };
 
 #endif

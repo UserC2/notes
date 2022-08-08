@@ -1,0 +1,7 @@
+(dd/mm/yyyy)	hw:		Hello, World!
+(dd/mm/yyyy)	todo:		need to add -r command
+(dd/mm/yyyy)	test:		This is a test
+(dd/mm/yyyy)	t2:		This is another test
+(dd/mm/yyyy)	t2:		This is another test #3
+(dd/mm/yyyy)	todo2:		I need to make a -r function
+(dd/mm/yyyy)	todo3:		I need to add .notes.txt to .gitignore
