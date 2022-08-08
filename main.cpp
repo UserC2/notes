@@ -1,4 +1,5 @@
 #include "constants.h"
+#include "TextInterface.h"
 #include <cstdlib>
 #include <iostream>
 
@@ -22,39 +23,44 @@ void fail(std::string_view message)
 
 int main(int argc, char* argv[])
 {
+	TextInterface notes{};
+	try
+	{
+		notes.status();
+	}
+	catch (const std::runtime_error& ex)
+	{
+		fail(ex.what());
+	}
 	if (argc <= 1)
 		fail();
-	if (argv[1] == constants::flag_delete)
+	if (argv[1] == constants::flagDelete)
 	{
 		if (!argv[2])
 			fail("Key cannot be empty.");
-		// delete it (check if it exists and fail if it doesn't)
-		// print message: "Deleted note: "notetxt"
+		if (!notes.remove(argv[2]))
+			fail("Key does not exist.");
 	}
-	else if (argv[1] == constants::flag_help)
+	else if (argv[1] == constants::flagHelp)
 	{
 		printHelp();
 	}
-	else if (argv[1] == constants::flag_printkeys)
+	else if (argv[1] == constants::flagPrintKeys)
 	{
-		// print all keys
+		notes.printKeys();
 	}
-	else if (argv[1] == constants::flag_printall)
+	else if (argv[1] == constants::flagPrintAll)
 	{
-		// print all lines of txt file. format will already be correct
+		notes.printAll();
 	}
-	else if (argv[1] == constants::flag_write)
+	else if (argv[1] == constants::flagWrite)
 	{
 		if (!argv[2])
 			fail("Key cannot be empty.");
 		else if (!argv[3])
 			fail("Note cannot be empty.");
-		// add line to txt file:
-		// date: dd/mm/yyyy
-		// (Date)\tkey:<tabs>note
-		// tabs calculation: if (str.length() < 8) tabs == 2
-		// if (str.length < 16) tabs = 1
-		// else fail("Key too long.")
+		if (!notes.add(argv[2], argv[3]))
+			fail("Key too long.");
 	}
 	else
 	{
