@@ -38,9 +38,17 @@ void TextInterface::printAll() const
 {
 }
 
+bool TextInterface::recall(std::string_view key) const
+{
+	return false;
+// if multiple entries, print all
+// if no entries, return false
+}
+
 bool TextInterface::remove(std::string_view key)
 {
 	return false;
 }
 // return false if key doesn't exist
+// if multiple entries, ask which to delete? or ask y/n and delete all?
 // print message: "Deleted note: "notetxt"

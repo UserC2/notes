@@ -19,6 +19,8 @@ public:
 	void printKeys() const;
 	/* Prints every key, note, and the dates they were taken. */
 	void printAll() const;
+	/* Print a note. Returns false if key doesn't exist. */
+	bool recall(std::string_view key) const;
 	/* Delete a note. Returns false if key doesn't exist. */
 	bool remove(std::string_view key);
 	/* Check the status of file. Returns false if file cannot be accessed. */

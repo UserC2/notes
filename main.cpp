@@ -6,7 +6,7 @@
 void printHelp()
 {
 	std::cout << "Usage: notes <flag> key note_string\n";
-	std::cout << "Flags:\n-d\tdelete\n-h\thelp\n-k\tkeys\n-p\tprint\n-w\twrite\n";
+	std::cout << "Flags:\n-d\tdelete\n-h\thelp\n-k\tkeys\n-p\tprint\n-r\trecall\n-w\twrite\n";
 }
 
 void fail()
@@ -46,6 +46,13 @@ int main(int argc, char* argv[])
 	else if (argv[1] == constants::flagPrintAll)
 	{
 		notes.printAll();
+	}
+	else if (argv[1] == constants::flagRecall)
+	{
+		if (!argv[2])
+            fail("Key cannot be empty.");
+        if (!notes.recall(argv[2]))
+            fail("Key does not exist.");
 	}
 	else if (argv[1] == constants::flagWrite)
 	{
