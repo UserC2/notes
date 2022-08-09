@@ -14,7 +14,7 @@ namespace constants
 	constexpr std::string_view flagPrintAll{ "-p" };
 	constexpr std::string_view flagRecall{ "-r" };
 	constexpr std::string_view flagWrite{ "-w" };
-	constexpr std::string_view noteFilename{ ".notes.txt" };
+	constexpr std::string_view noteFilename{ "~/.notes.txt" };
 }
 
 #endif
