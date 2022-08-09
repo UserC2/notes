@@ -3,11 +3,14 @@
 
 #include "constants.h"
 #include <fstream>
+#include <string>
 #include <string_view>
+#include <vector>
 
 class TextInterface final
 {
 private:
+	using keyArray_t = std::vector<std::string>;
 	std::fstream noteFile;
 
 public:
@@ -25,6 +28,10 @@ public:
 	bool remove(std::string_view key);
 	/* Check the status of file. Returns false if file cannot be accessed. */
 	bool status() const { return static_cast<bool>(noteFile); }
+
+private:
+	std::string extractKey();
+	keyArray_t getKeys();
 };
 
 #endif

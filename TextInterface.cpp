@@ -1,10 +1,11 @@
 #include "TextInterface.h"
 #include "date.h"
-#include <cassert>
 #include <fstream>
 #include <iostream>
+#include <limits> // std::numeric_limits
 #include <string>
 #include <string_view>
+#include <vector>
 
 TextInterface::TextInterface()
 	: noteFile{ constants::noteFilename, std::ios::app | std::ios::in }
@@ -34,6 +35,12 @@ bool TextInterface::add(std::string_view key, std::string_view noteString)
 
 void TextInterface::printKeys()
 {
+	noteFile.seekg(0, std::ios::beg);
+	keyArray_t keys{ getKeys() };
+	for (std::string_view e : keys)
+	{
+		std::cout << e << '\n';
+	}
 }
 
 void TextInterface::printAll()
@@ -61,3 +68,34 @@ bool TextInterface::remove(std::string_view key)
 // return false if key doesn't exist
 // if multiple entries, ask which to delete? or ask y/n and delete all?
 // print message: "Deleted note: "notetxt"
+
+std::string TextInterface::extractKey()
+{
+    noteFile.ignore(std::numeric_limits<std::streamsize>::max(), '\t');
+    std::string key;
+    if (std::getline(noteFile >> std::ws, key, ':')) // ignore second tab
+	{
+	    noteFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		// ignore the rest of the note
+	   	return key;
+	}
+	else
+	{
+		return constants::stringExtractionFailed;
+	}
+}
+
+TextInterface::keyArray_t TextInterface::getKeys()
+{
+	keyArray_t keys;
+	while (true)
+	{
+		keys.push_back(extractKey());
+		if (keys.back() == constants::stringExtractionFailed)
+		{
+			keys.pop_back();
+			break;
+		}
+	}
+	return keys;
+}
