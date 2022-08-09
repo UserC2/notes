@@ -1,18 +1,19 @@
 #include "TextInterface.h"
 #include "date.h"
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <string_view>
 
 TextInterface::TextInterface()
-	: noteFile{ constants::noteFilename, std::ios::app | std::ios::out }
+	: noteFile{ constants::noteFilename, std::ios::app | std::ios::in }
 {
-	noteFile.exceptions(std::ios_base::failbit | std::ios_base::badbit);
 }
 
 bool TextInterface::add(std::string_view key, std::string_view noteString)
 {
+	noteFile.seekp(0, std::ios::end);
 	std::string time{ date::currentDate() };
 	std::string tabs{ key.length() < constants::tabSize ? "\t\t" : "\t" };
 	std::string line{ '(' + time + ")\t" + static_cast<std::string>(key) + ':'
@@ -31,15 +32,22 @@ bool TextInterface::add(std::string_view key, std::string_view noteString)
 	return true;
 }
 
-void TextInterface::printKeys() const
+void TextInterface::printKeys()
 {
 }
 
-void TextInterface::printAll() const
+void TextInterface::printAll()
 {
+	noteFile.seekg(0, std::ios::beg);
+	while (true)
+	{
+		std::string str;
+		if (!std::getline(noteFile >> std::ws, str)) break;
+		std::cout << str << '\n';
+	}
 }
 
-bool TextInterface::recall(std::string_view key) const
+bool TextInterface::recall(std::string_view key)
 {
 	return false;
 // if multiple entries, print all

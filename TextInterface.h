@@ -16,11 +16,11 @@ public:
 	/* Add a note. Returns false if out of memory. */
 	bool add(std::string_view key, std::string_view noteString);
 	/* Prints every key. */
-	void printKeys() const;
+	void printKeys();
 	/* Prints every key, note, and the dates they were taken. */
-	void printAll() const;
+	void printAll();
 	/* Print a note. Returns false if key doesn't exist. */
-	bool recall(std::string_view key) const;
+	bool recall(std::string_view key);
 	/* Delete a note. Returns false if key doesn't exist. */
 	bool remove(std::string_view key);
 	/* Check the status of file. Returns false if file cannot be accessed. */
