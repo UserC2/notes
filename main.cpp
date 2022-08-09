@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 			fail("Key too long.");
 		if (!notes.add(argv[2], argv[3]))
 		{
-			fail("Out of memory.");
+			fail("File output failure. Out of memory?");
 		}
 	}
 	else

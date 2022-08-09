@@ -5,18 +5,24 @@
 #include <fstream>
 #include <string>
 #include <string_view>
+#include <tuple>
+#include <optional>
+#include <ostream>
 #include <vector>
 
 class TextInterface final
 {
 private:
-	using keyArray_t = std::vector<std::string>;
+	/* Holds the time, key, and note string of a note. */
+	using noteType_t = std::tuple<std::string, std::string, std::string>;
+	using noteKey_t = std::optional<std::string>;
+	using keyArray_t = std::vector<noteKey_t>;
 	std::fstream noteFile;
 
 public:
 	TextInterface();
 
-	/* Add a note. Returns false if out of memory. */
+	/* Add a note. Returns false on failure. */
 	bool add(std::string_view key, std::string_view noteString);
 	/* Prints every key. */
 	void printKeys();
@@ -30,8 +36,14 @@ public:
 	bool status() const { return static_cast<bool>(noteFile); }
 
 private:
-	std::string extractKey();
+	/* Extract a key out of the file, starting at the current file pointer. */
+	std::optional<std::string> extractKey();
+	/* Extract an array of all keys. */
 	keyArray_t getKeys();
+	/* Find 'key', if it exists. */
+//	noteKey_t findKey(std::string key);
+	/* Write a note to an output device. Returns false on failutre. */
+	bool write(const noteType_t& note, std::ostream& out);
 };
 
 #endif
