@@ -39,6 +39,11 @@ bool TextInterface::add(std::string_view key, std::string_view noteString)
 
 void TextInterface::printKeys()
 {
+	for (noteType_t note : m_noteArray)
+	{
+		std::cout << std::get<static_cast<size_t>(NoteType::key)>(note)
+			<< '\n';
+	}
 }
 
 void TextInterface::printAll()

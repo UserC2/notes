@@ -14,9 +14,16 @@
 class TextInterface final
 {
 private:
+	enum class NoteType
+	{
+		date,
+		key,
+		noteString,
+	};
 	/* Holds the time, key, and note string of a note. */
 	using noteType_t = std::tuple<std::string, std::string, std::string>;
 	using noteArray_t = std::vector<noteType_t>;
+// unnecessary?:
 	using noteKey_t = std::optional<std::string>;
 	using keyArray_t = std::vector<noteKey_t>;
 	FstreamHandler m_noteFile;
