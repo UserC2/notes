@@ -6,9 +6,8 @@
 #include <fstream>
 #include <iostream>
 #include <limits> // std::numeric_limits
-#include <optional>
 #include <ostream> // TextInterface::write()
-#include <tuple>
+#include <tuple> // std::get
 #include <string>
 #include <string_view>
 #include <vector>
@@ -81,57 +80,6 @@ bool TextInterface::remove(std::string_view key)
 //	<< "\" created on " << time << '\n';
 //	return true;
 }
-// return false if key doesn't exist
-// if multiple entries, ask which to delete? or ask y/n and delete all?
-// print message: "Deleted note: "notetxt"
-
-TextInterface::noteKey_t TextInterface::extractKey()
-{
-    m_noteFile.stream().ignore(std::numeric_limits<std::streamsize>::max()
-		, '\t');
-    std::string key;
-    if (std::getline(m_noteFile.stream() >> std::ws, key, ':'))
-	// ignores second tab
-	{
-	    m_noteFile.stream().ignore(std::numeric_limits<std::streamsize>::max()
-			, '\n');
-		// ignores the rest of the note
-	   	return key;
-	}
-	else
-	{
-		return {}; // no valid key
-	}
-}
-
-TextInterface::keyArray_t TextInterface::getKeys()
-{
-	m_noteFile.read();
-	keyArray_t keys;
-	while (true)
-	{
-		keys.push_back(extractKey());
-		if (!keys.back()) // doesn't contain a string
-		{
-			keys.pop_back();
-			m_noteFile.stream().clear();
-			break; // we've reached EOF
-		}
-	}
-	return keys;
-}
-
-/*
-TextInterface::noteKey_t TextInterface::findKey(std::string key)
-{
-	keyArray_t keys{ getKeys() };
-	noteKey_t found{ std::find(keys.begin(), keys.end(), key) };
-	if (found == keys.end())
-		return std::nullopt_t{}
-	else
-		return found;
-}
-*/
 
 TextInterface::noteType_t TextInterface::getNote()
 {
