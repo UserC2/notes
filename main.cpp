@@ -1,6 +1,7 @@
 #include "constants.h"
 #include "TextInterface.h"
 #include <cstdlib> // std::exit
+#include <exception>
 #include <iostream>
 
 void printHelp()
@@ -23,53 +24,61 @@ void fail(std::string_view message)
 
 int main(int argc, char* argv[])
 {
-	TextInterface notes{};
-	if (!notes.status())
-		fail("Notes file not found or inaccessable.");
-	if (argc <= 1)
-		fail();
-	if (argv[1] == constants::flagDelete)
+	try
 	{
-		if (!argv[2])
-			fail("Key cannot be empty.");
-		if (!notes.remove(argv[2]))
-			fail("Key does not exist.");
-	}
-	else if (argv[1] == constants::flagHelp)
-	{
-		printHelp();
-	}
-	else if (argv[1] == constants::flagPrintKeys)
-	{
-		notes.printKeys();
-	}
-	else if (argv[1] == constants::flagPrintAll)
-	{
-		notes.printAll();
-	}
-	else if (argv[1] == constants::flagRecall)
-	{
-		if (!argv[2])
-            fail("Key cannot be empty.");
-        if (!notes.recall(argv[2]))
-            fail("Key does not exist.");
-	}
-	else if (argv[1] == constants::flagWrite)
-	{
-		if (!argv[2])
-			fail("Key cannot be empty.");
-		else if (!argv[3])
-			fail("Note cannot be empty.");
-		else if (std::strlen(argv[2]) > constants::maxKeySize)
-			fail("Key too long.");
-		if (!notes.add(argv[2], argv[3]))
+		TextInterface notes{};
+		if (argc <= 1)
+			fail();
+		if (argv[1] == constants::flagDelete)
 		{
-			fail("File output failure. Out of memory?");
+			if (!argv[2])
+				fail("Key cannot be empty.");
+			if (!notes.remove(argv[2]))
+				fail("Key does not exist.");
 		}
+		else if (argv[1] == constants::flagHelp)
+		{
+			printHelp();
+		}
+		else if (argv[1] == constants::flagPrintKeys)
+		{
+			notes.printKeys();
+		}
+		else if (argv[1] == constants::flagPrintAll)
+		{
+			notes.printAll();
+		}
+		else if (argv[1] == constants::flagRecall)
+		{
+			if (!argv[2])
+        		fail("Key cannot be empty.");
+    	    if (!notes.recall(argv[2]))
+   	    		fail("Key does not exist.");
+		}
+		else if (argv[1] == constants::flagWrite)
+		{
+			if (!argv[2])
+				fail("Key cannot be empty.");
+			else if (!argv[3])
+				fail("Note cannot be empty.");
+			else if (std::strlen(argv[2]) > constants::maxKeySize)
+				fail("Key too long.");
+			if (!notes.add(argv[2], argv[3]))
+			{
+				fail("File output failure. Out of memory? Your notes may have been lost!");
+				// TODO: this is not an ideal failure.
+				// maybe keep the program running and ask user to try again?
+				// do this in TextInterface
+			}
+		}
+		else
+		{
+			fail("Invalid flag.");
+		}
+		return EXIT_SUCCESS;
 	}
-	else
+	catch (std::runtime_error& ex)
 	{
-		fail("Invalid flag.");
+		fail(ex.what());
 	}
-	return EXIT_SUCCESS;
 }

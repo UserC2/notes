@@ -1,27 +1,31 @@
 #include "TextInterface.h"
-#include "date.h"
+#include "date.h" // TextInterface::add()
+#include "FstreamHandler.h"
 #include <algorithm> // std::find
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <limits> // std::numeric_limits
 #include <optional>
-#include <ostream>
+#include <ostream> // TextInterface::write()
 #include <tuple>
 #include <string>
 #include <string_view>
 #include <vector>
 
 TextInterface::TextInterface()
-	: noteFile{ constants::noteFilename, std::ios::app | std::ios::in }
+	: m_noteFile{ constants::noteFilename }
 {
+	m_noteArray.reserve(m_noteFile.maxLines());
+	loadNoteArray();
 }
 
 bool TextInterface::add(std::string_view key, std::string_view noteString)
 {
 	std::string time{ date::currentDate() };
 	noteType_t note{ time, key, noteString };
-	noteFile.seekp(0, std::ios::end);
-	if (write(note, noteFile))
+	m_noteFile.write();
+	if (write(note, m_noteFile.stream()))
 	{
 		std::cout << "Wrote \"" << noteString << "\" with key \"" << key
 		<< "\" on " << time << '\n';
@@ -44,11 +48,11 @@ void TextInterface::printKeys()
 
 void TextInterface::printAll()
 {
-	noteFile.seekg(0, std::ios::beg);
+	m_noteFile.read();
 	while (true)
 	{
 		std::string str;
-		if (!std::getline(noteFile >> std::ws, str)) break;
+		if (!std::getline(m_noteFile.stream() >> std::ws, str)) break;
 		std::cout << str << '\n';
 	}
 }
@@ -63,13 +67,13 @@ bool TextInterface::recall(std::string_view key)
 
 bool TextInterface::remove(std::string_view key)
 {
-// get note corresponding to ey
+// get note corresponding to key
 // if multiple notes, print all
 // if no entries, return false
 	return false;
 // if one note, delete immediately
 // if multiple entries, ask which to delete (number 1-amntOfEntries)
-// print message: "Deleted note:"
+//	remove from array, then writeFile();
 //	std::cout << "Deleted \"" << noteString << "\" with key \"" << key
 //	<< "\" created on " << time << '\n';
 //	return true;
@@ -80,12 +84,15 @@ bool TextInterface::remove(std::string_view key)
 
 TextInterface::noteKey_t TextInterface::extractKey()
 {
-    noteFile.ignore(std::numeric_limits<std::streamsize>::max(), '\t');
+    m_noteFile.stream().ignore(std::numeric_limits<std::streamsize>::max()
+		, '\t');
     std::string key;
-    if (std::getline(noteFile >> std::ws, key, ':')) // ignore second tab
+    if (std::getline(m_noteFile.stream() >> std::ws, key, ':'))
+	// ignores second tab
 	{
-	    noteFile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		// ignore the rest of the note
+	    m_noteFile.stream().ignore(std::numeric_limits<std::streamsize>::max()
+			, '\n');
+		// ignores the rest of the note
 	   	return key;
 	}
 	else
@@ -96,7 +103,7 @@ TextInterface::noteKey_t TextInterface::extractKey()
 
 TextInterface::keyArray_t TextInterface::getKeys()
 {
-	noteFile.seekg(0, std::ios::beg);
+	m_noteFile.read();
 	keyArray_t keys;
 	while (true)
 	{
@@ -121,6 +128,43 @@ TextInterface::noteKey_t TextInterface::findKey(std::string key)
 }
 */
 
+TextInterface::noteType_t TextInterface::getNote()
+{
+    m_noteFile.stream().ignore(std::numeric_limits<std::streamsize>::max()
+		, '(');
+	std::string date;
+	if (!std::getline(m_noteFile.stream() >> std::ws, date, ')'))
+		throw std::runtime_error("Failed to extract date from note.");
+	std::string key;
+	if (!std::getline(m_noteFile.stream() >> std::ws, key, ':'))
+		throw std::runtime_error("Failed to extract key from note.");
+	std::string note;
+	if (!std::getline(m_noteFile.stream() >> std::ws, note, '\n'))
+		throw std::runtime_error("Failed to extract note string from note.");
+	return { date, key, note };
+}
+
+void TextInterface::loadNoteArray()
+{
+	m_noteFile.stream().seekg(0, std::ios::beg);
+	while (!m_noteFile.stream().eof())
+	{
+		try
+		{
+			m_noteArray.push_back(getNote());
+		}
+		catch (const std::runtime_error& ex)
+		{
+			//std::cerr << "Debug: Exception occured: " << ex.what() << '\n';
+			continue;
+			/* Since the invalid note is never loaded into the array, it is
+			* deleted when the program is run! This eliminates errors in the
+			*  text file. */
+		}
+	}
+	m_noteFile.stream().seekg(0, std::ios::beg);
+}
+
 bool TextInterface::write(const noteType_t& note, std::ostream& out)
 {
 	//noteFile.seekp(0, std::ios::end);
@@ -138,4 +182,14 @@ bool TextInterface::write(const noteType_t& note, std::ostream& out)
         return false;
     }
     return true;
+}
+
+bool TextInterface::writeFile()
+{
+	for (const noteType_t& note : m_noteArray)
+	{
+		if (!write(note, m_noteFile.stream()))
+			return false;
+	}
+	return true;
 }
