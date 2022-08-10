@@ -39,16 +39,10 @@ bool TextInterface::add(std::string_view key, std::string_view noteString)
 
 void TextInterface::printKeys()
 {
-	//keyArray_t keys{ getKeys() };
-	//for (std::string_view e : keys)
-	//{
-	//	std::cout << e << '\n';
-	//}
 }
 
 void TextInterface::printAll()
 {
-	m_noteFile.read();
 	for (noteType_t note : m_noteArray)
 	{
 		write(note, std::cout);
@@ -114,6 +108,7 @@ TextInterface::keyArray_t TextInterface::getKeys()
 	}
 	return keys;
 }
+
 /*
 TextInterface::noteKey_t TextInterface::findKey(std::string key)
 {
@@ -153,7 +148,6 @@ void TextInterface::loadNoteArray()
 		}
 		catch (const std::runtime_error& ex)
 		{
-			//std::cerr << "Debug: Exception occured: " << ex.what() << '\n';
 			continue;
 			/* Since the invalid note is never loaded into the array, it is
 			* deleted when the program is run! This eliminates errors in the
@@ -165,7 +159,6 @@ void TextInterface::loadNoteArray()
 
 bool TextInterface::write(const noteType_t& note, std::ostream& out)
 {
-	//noteFile.seekp(0, std::ios::end);
 	const auto&[time, key, noteString]{ note };
     std::string tabs{ key.length() < constants::tabSize ? "\t\t" : "\t" };
     std::string line{ '(' + time + ")\t" + key + ':' + tabs + noteString
