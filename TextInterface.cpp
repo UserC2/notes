@@ -1,7 +1,7 @@
 #include "TextInterface.h"
 #include "date.h" // TextInterface::add()
 #include "FstreamHandler.h"
-#include <algorithm> // std::find
+#include <algorithm> // std::find_if
 #include <exception>
 #include <fstream>
 #include <iostream>
@@ -24,11 +24,11 @@ bool TextInterface::add(std::string_view key, std::string_view noteString)
 {
 	std::string time{ date::currentDate() };
 	noteType_t note{ time, key, noteString };
-	m_noteFile.write();
+	m_noteFile.stream().seekp(0, std::ios::end);
 	if (write(note, m_noteFile.stream()))
 	{
 		std::cout << "Wrote \"" << noteString << "\" with key \"" << key
-		<< "\" on " << time << '\n';
+		<< "\" on " << time << ".\n";
 		return true;
 	}
 	else
@@ -39,7 +39,7 @@ bool TextInterface::add(std::string_view key, std::string_view noteString)
 
 void TextInterface::printKeys()
 {
-	for (noteType_t note : m_noteArray)
+	for (const noteType_t& note : m_noteArray)
 	{
 		std::cout << std::get<static_cast<size_t>(NoteType::key)>(note)
 			<< '\n';
@@ -48,7 +48,7 @@ void TextInterface::printKeys()
 
 void TextInterface::printAll()
 {
-	for (noteType_t note : m_noteArray)
+	for (const noteType_t& note : m_noteArray)
 	{
 		write(note, std::cout);
 	}
@@ -56,10 +56,16 @@ void TextInterface::printAll()
 
 bool TextInterface::recall(std::string_view key)
 {
-// get note corresponding to key
-// if multiple entries, print all
-// if no entries, return false
-	return false;
+	// TODO: this does not work with multiple matching keys
+	auto matchesKey{ [&](const noteType_t& note) -> bool {
+		return std::get<static_cast<size_t>(NoteType::key)>(note) == key;
+	}};
+	auto note{ std::find_if(std::begin(m_noteArray), std::end(m_noteArray)
+		, matchesKey) };
+	if (note != std::end(m_noteArray))
+		return write(*note, std::cout);
+	else
+		return false;
 }
 
 bool TextInterface::remove(std::string_view key)
@@ -108,6 +114,7 @@ TextInterface::keyArray_t TextInterface::getKeys()
 		if (!keys.back()) // doesn't contain a string
 		{
 			keys.pop_back();
+			m_noteFile.stream().clear();
 			break; // we've reached EOF
 		}
 	}
@@ -130,6 +137,12 @@ TextInterface::noteType_t TextInterface::getNote()
 {
     m_noteFile.stream().ignore(std::numeric_limits<std::streamsize>::max()
 		, '(');
+	// TODO: this should extract an entire line into a stringstream
+	// after that, operate as normal below:
+	// this will prevent errors that should have been caught, such as accepting
+	// practically anything as a key so long as it is between () and : (even if
+	// it is seperated by several newlines and other garbage).
+	// mostly this will eliminate newlines between notes.
 	std::string date;
 	if (!std::getline(m_noteFile.stream() >> std::ws, date, ')'))
 		throw std::runtime_error("Failed to extract date from note.");
@@ -147,6 +160,9 @@ void TextInterface::loadNoteArray()
 	m_noteFile.stream().seekg(0, std::ios::beg);
 	while (!m_noteFile.stream().eof())
 	{
+		m_noteFile.stream().clear();
+		/* Reset any flags caused by a failed call to getNote(). This is done
+		* at the start of the loop iteration to avoid resetting eofbit. */
 		try
 		{
 			m_noteArray.push_back(getNote());
@@ -155,29 +171,31 @@ void TextInterface::loadNoteArray()
 		{
 			continue;
 			/* Since the invalid note is never loaded into the array, it is
-			* deleted when the program is run! This eliminates errors in the
-			*  text file. */
+			* deleted when the array is written to disk. This eliminates errors
+			* in the text file. */
 		}
 	}
 	m_noteFile.stream().seekg(0, std::ios::beg);
+	m_noteFile.stream().clear(); // clear eofbit so file can be used
 }
 
 bool TextInterface::write(const noteType_t& note, std::ostream& out)
 {
 	const auto&[time, key, noteString]{ note };
-    std::string tabs{ key.length() < constants::tabSize ? "\t\t" : "\t" };
-    std::string line{ '(' + time + ")\t" + key + ':' + tabs + noteString
+	std::string tabs{ key.length() < constants::keyHalfSize ? "\t\t" : "\t" };
+	std::string line{ '(' + time + ")\t" + key + ':' + tabs + noteString
 		+ '\n' };
-    out << line;
-    try
-    {
-        out.flush();
-    }
-    catch (std::ios_base::failure)
-    {
-        return false;
-    }
-    return true;
+	out << line;
+	try
+	{
+	    out.flush();
+	}
+	catch (std::ios_base::failure)
+	{
+		m_noteFile.stream().clear();
+	    return false;
+	}
+	return true;
 }
 
 bool TextInterface::writeFile()
