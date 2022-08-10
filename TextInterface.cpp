@@ -49,11 +49,9 @@ void TextInterface::printKeys()
 void TextInterface::printAll()
 {
 	m_noteFile.read();
-	while (true)
+	for (noteType_t note : m_noteArray)
 	{
-		std::string str;
-		if (!std::getline(m_noteFile.stream() >> std::ws, str)) break;
-		std::cout << str << '\n';
+		write(note, std::cout);
 	}
 }
 
