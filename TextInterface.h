@@ -6,9 +6,8 @@
 #include <string>
 #include <string_view>
 #include <tuple> // TextInterface::noteType_t
-#include <optional>
 #include <ostream> // TextInterface::write()
-#include <vector>
+#include <vector> // TextInterface::noteArray_t and indexArray_t
 
 class TextInterface final
 {
@@ -23,9 +22,8 @@ private:
 	using noteType_t = std::tuple<std::string, std::string, std::string>;
 	/* Array of every note. */
 	using noteArray_t = std::vector<noteType_t>;
-	/* Holds a reference to every note. */
-	using noteReferenceArray_t = std::vector<std::reference_wrapper<noteType_t>>;
-	using noteConstReferenceArray_t = std::vector<std::reference_wrapper<const noteType_t>>;
+	/* Holds indexes of found notes. */
+	using indexArray_t = std::vector<std::size_t>;
 	FstreamHandler m_noteFile;
 	noteArray_t m_noteArray;
 
@@ -45,17 +43,18 @@ public:
 	bool remove(std::string_view key);
 
 private:
-	/* Returns array of references to all matching notes. The array will be
+	/* Returns an array of indices of all notes. */
+	indexArray_t findAllNotes() const;
+	/* Returns an array of indices of all matching notes. The array will be
 	* empty if there are no matching notes. */
-	noteReferenceArray_t findNotes(std::string_view key);
-	noteConstReferenceArray_t findNotes(std::string_view key) const;
+	indexArray_t findNotes(std::string_view key) const;
 	/* Get a note from m_noteFile. */
 	noteType_t getNote();
 	/* Load m_noteArray with notes from m_noteFile. */
 	void loadNoteArray();
 	/* Print notes to standard output for viewing by the user. Returns false if
-	* writing failed or noteArray is empty. */
-	bool printNotes(const noteConstReferenceArray_t noteArray) const;
+	* writing failed or indexArray is empty. */
+	bool printNotes(const indexArray_t& indexArray) const;
 	/* Write a note to an output device. Returns false on failure. */
 	bool write(const noteType_t& note, std::ostream& out) const;
 	/* Write all notes from noteArray to noteFile. */

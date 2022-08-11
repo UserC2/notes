@@ -1,18 +1,17 @@
 #include "TextInterface.h"
-#include "date.h" // TextInterface::add()
+#include "date.h" // date::currentDate()
 #include "FstreamHandler.h"
 #include "input.h" // askToContinue()
-#include <algorithm> // std::find_if
-#include <cassert>
-#include <exception>
+#include <algorithm> // std::count_if
+#include <exception> // std::runtime_exception
 #include <fstream>
 #include <iostream>
 #include <limits> // std::numeric_limits
 #include <ostream> // TextInterface::write()
-#include <tuple> // std::get
+#include <tuple> // std::get()
 #include <string>
 #include <string_view>
-#include <vector>
+#include <vector> // noteArray_t and indexArray_t
 
 // public functions
 
@@ -47,14 +46,15 @@ void TextInterface::printKeys() const
 		std::cout << std::get<static_cast<size_t>(NoteType::key)>(note)
 			<< '\n';
 	}
+	// make printKeys function similar to printNotes except for keys
+	// it should accept same parameters as printNotes?
+	// maybe another function to find all unique keys
+	// see idea in .notes.txt as well
 }
 
 void TextInterface::printAll() const
 {
-	for (const noteType_t& note : m_noteArray)
-	{
-		write(note, std::cout);
-	}
+	printNotes(findAllNotes());
 }
 
 bool TextInterface::recall(std::string_view key) const
@@ -78,40 +78,31 @@ bool TextInterface::remove(std::string_view key)
 
 // private functions
 
-TextInterface::noteReferenceArray_t TextInterface::findNotes(std::string_view key)
+TextInterface::indexArray_t TextInterface::findAllNotes() const
 {
-    auto matchesKey{ [&](const noteType_t& note) -> bool {
-        return std::get<static_cast<std::size_t>(NoteType::key)>(note) == key;
-    }};
-	noteReferenceArray_t noteArray;
-	noteArray.reserve(std::count_if(std::begin(m_noteArray)
-		, std::end(m_noteArray), matchesKey));
-	for (noteType_t& note : m_noteArray)
+	indexArray_t indexArray;
+	indexArray.reserve(m_noteArray.size());
+	for (std::size_t index{ 0 }; index < m_noteArray.size(); index++)
 	{
-		if (matchesKey(note))
-		{
-			noteArray.push_back(note);
-		}
+		indexArray.push_back(index);
 	}
-    return noteArray;
+	return indexArray;
 }
 
-TextInterface::noteConstReferenceArray_t TextInterface::findNotes(std::string_view key) const
+TextInterface::indexArray_t TextInterface::findNotes(std::string_view key) const
 {
     auto matchesKey{ [&](const noteType_t& note) -> bool {
         return std::get<static_cast<std::size_t>(NoteType::key)>(note) == key;
     }};
-	noteConstReferenceArray_t noteArray;
-	noteArray.reserve(std::count_if(std::begin(m_noteArray)
+	indexArray_t indexArray;
+	indexArray.reserve(std::count_if(std::begin(m_noteArray)
 		, std::end(m_noteArray), matchesKey));
-	for (const noteType_t& note : m_noteArray)
+	for (std::size_t index{ 0 }; index < m_noteArray.size(); index++)
 	{
-		if (matchesKey(note))
-		{
-			noteArray.push_back(note);
-		}
+		if (matchesKey(m_noteArray.at(index)))
+			indexArray.push_back(index);
 	}
-    return noteArray;
+	return indexArray;
 }
 
 TextInterface::noteType_t TextInterface::getNote()
@@ -160,12 +151,12 @@ void TextInterface::loadNoteArray()
 	m_noteFile.stream().clear(); // clear eofbit so file can be used
 }
 
-bool TextInterface::printNotes(const noteConstReferenceArray_t noteArray) const
+bool TextInterface::printNotes(const indexArray_t& indexArray) const
 {
-	if (noteArray.size() == 0)
+	if (indexArray.size() == 0)
 		return false;
 	int i{ 0 };
-	for (const noteType_t& note : noteArray)
+	for (std::size_t index : indexArray)
 	{
 		if (i == constants::maxPageLength)
 		{
@@ -173,7 +164,7 @@ bool TextInterface::printNotes(const noteConstReferenceArray_t noteArray) const
 			if (!input::askToContinue(":", "q"))
 				break;
 		}
-		if (!write(note, std::cout))
+		if (!write(m_noteArray.at(index), std::cout))
 			return false;
 		i++;
 	}
