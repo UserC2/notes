@@ -16,3 +16,6 @@ Notes are stored in `~/.notes.txt`
 |-p	|print	|`notes -p`|Prints a list of every key, note, and date they were taken|
 |-r	|recall	|`notes -r key`|Prints the note corresponding to `key`|
 |-w	|write	|`notes -w key note_string`|Adds a note (`note_string`) accessible through `key`|
+
+A `:` prompt is displayed when there are more than 10 notes to be displayed.
+Press enter to continue displaying notes or type `q` then press enter to exit.
