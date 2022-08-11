@@ -22,7 +22,8 @@ private:
 	using noteType_t = std::tuple<std::string, std::string, std::string>;
 	/* Array of every note. */
 	using noteArray_t = std::vector<noteType_t>;
-	/* Holds indexes of found notes. */
+	/* Holds indices of notes. After removing a note (std::vector::erase()),
+	* all indices >= the removed once are invalid. */
 	using indexArray_t = std::vector<std::size_t>;
 	FstreamHandler m_noteFile;
 	noteArray_t m_noteArray;

@@ -4,6 +4,7 @@
 #include "input.h" // askToContinue()
 #include <algorithm> // std::count_if
 #include <exception> // std::runtime_exception
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <limits> // std::numeric_limits
@@ -64,16 +65,35 @@ bool TextInterface::recall(std::string_view key) const
 
 bool TextInterface::remove(std::string_view key)
 {
-// get note corresponding to key
-// if multiple notes, print all
-// if no entries, return false
+	indexArray_t indexArray{ findNotes(key) };
+	noteType_t note;
+	if (indexArray.size() == 0)
+	{
+		return false;
+	}
+	else if (indexArray.size() == 1)
+	{
+		note = m_noteArray.at(indexArray[0]);
+		m_noteArray.erase(std::begin(m_noteArray) + indexArray[0]);
+	}
+	else
+	{
+		note = std::make_tuple("", "", "");
+		// print all notes (with number preceeding each one, also seperate function)
+		// select note (use selectNote() function, which should loop until user selects note?
+		// what if it failed if the user didn't want to delete a note? maybe bad input should
+		// fail the function completely)
+		// assign note to that note
+		// erase that note
+	}
+	if (writeFile())
+	{
+		const auto&[time, key, noteString]{ note };
+		std::cout << "Deleted \"" << noteString << "\" with key \"" << key
+			<< "\" created on " << time << '\n';
+		return true;
+	}
 	return false;
-// if one note, delete immediately
-// if multiple entries, ask which to delete (number 1-amntOfEntries)
-//	remove from array, then writeFile();
-//	std::cout << "Deleted \"" << noteString << "\" with key \"" << key
-//	<< "\" created on " << time << '\n';
-//	return true;
 }
 
 // private functions
@@ -192,6 +212,17 @@ bool TextInterface::write(const noteType_t& note, std::ostream& out) const
 
 bool TextInterface::writeFile()
 {
+	try
+	{
+		m_noteFile.stream().close();
+		m_noteFile.stream().open(m_noteFile.filename(), std::ios::out
+			| std::ios::trunc);
+	}
+	catch (std::runtime_exception& ex)
+	{
+		std::cerr << "TextInterface::writeFile(): " << ex.what() << '\n';
+		return false;
+	}
 	for (const noteType_t& note : m_noteArray)
 	{
 		if (!write(note, m_noteFile.stream()))
