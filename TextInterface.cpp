@@ -69,23 +69,22 @@ bool TextInterface::remove(std::string_view key)
 	noteType_t note;
 	if (indexArray.size() == 0)
 	{
+		std::cout << "No matching notes.\n";
 		return false;
 	}
 	else if (indexArray.size() == 1)
 	{
 		note = m_noteArray.at(indexArray[0]);
-		m_noteArray.erase(std::begin(m_noteArray) + indexArray[0]);
 	}
 	else
 	{
-		note = std::make_tuple("", "", "");
-		// print all notes (with number preceeding each one, also seperate function)
-		// select note (use selectNote() function, which should loop until user selects note?
-		// what if it failed if the user didn't want to delete a note? maybe bad input should
-		// fail the function completely)
-		// assign note to that note
-		// erase that note
+		printNumberedNotes(indexArray);
+		size_t index{ selectANote(indexArray) };
+		if (index == indexArray.size())
+			return false;
+		note = m_noteArray.at(indexArray[index]);
 	}
+	m_noteArray.erase(std::begin(m_noteArray) + indexArray[0]);
 	if (writeFile())
 	{
 		const auto&[time, key, noteString]{ note };
@@ -93,6 +92,7 @@ bool TextInterface::remove(std::string_view key)
 			<< "\" created on " << time << '\n';
 		return true;
 	}
+	std::cout << "Writing failed.\n";
 	return false;
 }
 
@@ -191,6 +191,46 @@ bool TextInterface::printNotes(const indexArray_t& indexArray) const
 	return true;
 }
 
+bool TextInterface::printNumberedNotes(const indexArray_t& indexArray) const
+{
+	if (indexArray.size() == 0)
+		return false;
+	int i{ 0 };
+	for (std::size_t index : indexArray)
+	{
+		if (i == constants::maxPageLength)
+		{
+			i = 0;
+			if (!input::askToContinue(":", "q"))
+				break;
+		}
+		std::cout << i << ' ';
+		if (!write(m_noteArray.at(index), std::cout))
+			return false;
+		i++;
+	}
+	return true;
+}
+
+std::size_t TextInterface::selectANote(const indexArray_t& indexArray) const
+{
+	std::cout << "Enter the number corresponding a note.\n";
+	std::cout << "Enter any negative number to cancel.\n";
+	while (true)
+	{
+		int input{ input::getInput<int>(": ") };
+		if (input < 0)
+		{
+			std::cout << "Operation cancelled.\n";
+			return indexArray.size();
+		}
+		else if (input >= indexArray.size())
+			continue; // if index is too high, try again
+		else
+			return static_cast<std::size_t>(input);
+	}
+}
+
 bool TextInterface::write(const noteType_t& note, std::ostream& out) const
 {
 	const auto&[time, key, noteString]{ note };
@@ -218,7 +258,7 @@ bool TextInterface::writeFile()
 		m_noteFile.stream().open(m_noteFile.filename(), std::ios::out
 			| std::ios::trunc);
 	}
-	catch (std::runtime_exception& ex)
+	catch (const std::runtime_error& ex)
 	{
 		std::cerr << "TextInterface::writeFile(): " << ex.what() << '\n';
 		return false;

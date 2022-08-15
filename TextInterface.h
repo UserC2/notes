@@ -56,6 +56,15 @@ private:
 	/* Print notes to standard output for viewing by the user. Returns false if
 	* writing failed or indexArray is empty. */
 	bool printNotes(const indexArray_t& indexArray) const;
+	/* Print notes to standard output for viewing by the user. Each note is
+	* prefixed with a number corresponding to its index in 'indexArray'.
+	* Returns false if writing failed or indexArray is empty. Numbered notes
+	* start at '0' (like the array indices). */
+	bool printNumberedNotes(const indexArray_t& indexArray) const;
+	/* Ask a user to select a note out of an indexArray_t. Loops until user
+	* enters a valid number, or enters a negative number to cancel. Returns an
+	index one larger than the maximum index of the array on failure. */
+	std::size_t selectANote(const indexArray_t& indexArray) const;
 	/* Write a note to an output device. Returns false on failure. */
 	bool write(const noteType_t& note, std::ostream& out) const;
 	/* Write all notes from noteArray to noteFile. */

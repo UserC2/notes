@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 			if (!argv[2])
 				fail("Key cannot be empty.");
 			if (!notes.remove(argv[2]))
-				fail("Key does not exist.");
+				fail("Note not deleted.");
 		}
 		else if (argv[1] == constants::flagHelp)
 		{
