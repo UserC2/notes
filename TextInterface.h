@@ -7,7 +7,7 @@
 #include <string_view>
 #include <tuple> // TextInterface::noteType_t
 #include <ostream> // TextInterface::write()
-#include <vector> // TextInterface::noteArray_t and indexArray_t
+#include <vector> // TextInterface::indexArray_t, keyArray_t, and noteArray_t
 
 class TextInterface final
 {
@@ -20,6 +20,8 @@ private:
 	};
 	/* Holds the time, key, and note string of a note. */
 	using noteType_t = std::tuple<std::string, std::string, std::string>;
+	/* Holds a string_view of keys. */
+	using keyArray_t = std::vector<std::string_view>;
 	/* Array of every note. */
 	using noteArray_t = std::vector<noteType_t>;
 	/* Holds indices of notes. After removing a note (std::vector::erase()),
@@ -35,7 +37,7 @@ public:
 	/* Add a note. Returns false on failure. */
 	bool add(std::string_view key, std::string_view noteString);
 	/* Prints every key. */
-	void printKeys() const;
+	void printAllKeys() const;
 	/* Prints every key, note, and the dates they were taken. */
 	void printAll() const;
 	/* Print a note. Returns false if key doesn't exist. */
@@ -49,10 +51,16 @@ private:
 	/* Returns an array of indices of all matching notes. The array will be
 	* empty if there are no matching notes. */
 	indexArray_t findNotes(std::string_view key) const;
+	/* Returns array of all unique keys. */
+	keyArray_t findUniqueKeys() const;
+	/* Get a key from a noteType_t. */
+	std::string_view getKey(const noteType_t& note) const;
 	/* Get a note from m_noteFile. */
 	noteType_t getNote();
 	/* Load m_noteArray with notes from m_noteFile. */
 	void loadNoteArray();
+	/* Print keys to standard output. */
+	void printKeys(const keyArray_t& keyArray) const;
 	/* Print notes to standard output for viewing by the user. Returns false if
 	* writing failed or indexArray is empty. */
 	bool printNotes(const indexArray_t& indexArray) const;

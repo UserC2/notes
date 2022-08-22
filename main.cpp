@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 		}
 		else if (argv[1] == constants::flagPrintKeys)
 		{
-			notes.printKeys();
+			notes.printAllKeys();
 		}
 		else if (argv[1] == constants::flagPrintAll)
 		{
