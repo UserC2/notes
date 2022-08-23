@@ -6,10 +6,15 @@
 
 void printHelp()
 {
-	std::cout << "Usage: notes <flag> key note_string\n";
-	std::cout << "Flags:\n-d\tdelete\n-h\thelp\n-k\tkeys\n-p\tprint\n-r\trecall\n-w\twrite\n";
-	// add -c flag
-	// also make this suck less
+	std::cout << "Usage: notes <flag> key note\n";
+	std::cout << "Flag\tName\tUsage\n";
+	std::cout << "-c\tclear\t-c or -c key\n";
+	std::cout << "-d\tdelete\t-d key\n";
+	std::cout << "-h\thelp\t-h\n";
+	std::cout << "-k\tkeys\t-k\n";
+	std::cout << "-p\tprint\t-p\n";
+	std::cout << "-r\trecall\t-r key\n";
+	std::cout << "-w\twrite\t-w key note\n";
 }
 
 void fail()
