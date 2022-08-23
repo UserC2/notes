@@ -8,6 +8,8 @@ void printHelp()
 {
 	std::cout << "Usage: notes <flag> key note_string\n";
 	std::cout << "Flags:\n-d\tdelete\n-h\thelp\n-k\tkeys\n-p\tprint\n-r\trecall\n-w\twrite\n";
+	// add -c flag
+	// also make this suck less
 }
 
 void fail()
@@ -29,7 +31,20 @@ int main(int argc, char* argv[])
 		TextInterface notes{};
 		if (argc <= 1)
 			fail();
-		if (argv[1] == constants::flagDelete)
+		if (argv[1] == constants::flagClear)
+		{
+			if (!argv[2])
+			{
+				if (!notes.clearAll())
+					fail("Notes not deleted.");
+			}
+			else
+			{
+				if (!notes.clear(argv[2]))
+					fail("Notes not deleted.");
+			}
+		}
+		else if (argv[1] == constants::flagDelete)
 		{
 			if (!argv[2])
 				fail("Key cannot be empty.");

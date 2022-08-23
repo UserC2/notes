@@ -11,6 +11,7 @@ namespace constants
 	constexpr std::size_t maxPageLength{ static_cast<std::size_t>(10) };
 	/* How many chars can key be before two tabs is too much */
 	constexpr std::size_t keyHalfSize{ static_cast<std::size_t>(7) };
+	constexpr std::string_view flagClear{ "-c" };
 	constexpr std::string_view flagDelete{ "-d" };
 	constexpr std::string_view flagHelp{ "-h" };
 	constexpr std::string_view flagPrintKeys{ "-k" };

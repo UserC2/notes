@@ -36,6 +36,13 @@ public:
 
 	/* Add a note. Returns false on failure. */
 	bool add(std::string_view key, std::string_view noteString);
+	/* Remove EVERY NOTE corresponding to 'key'. Prints all notes corresponding
+	* to specified key and prompts user to confirm decision. Returns false if
+	* writing failed or user cancelled operation. */
+	bool clear(std::string_view key);
+	/* Remove EVERY NOTE from the note file. Prompts user before deleting all
+	* notes. Returns false if writing failed or user cancelled operation. */
+	bool clearAll();
 	/* Prints every key. */
 	void printAllKeys() const;
 	/* Prints every key, note, and the dates they were taken. */
@@ -69,6 +76,9 @@ private:
 	* Returns false if writing failed or indexArray is empty. Numbered notes
 	* start at '0' (like the array indices). */
 	bool printNumberedNotes(const indexArray_t& indexArray) const;
+	/* Delete the specified note from m_noteArray. */
+	void removeNote(std::size_t index);
+	void removeNote(const noteType_t& note);
 	/* Ask a user to select a note out of an indexArray_t. Loops until user
 	* enters a valid number, or enters a negative number to cancel. Returns an
 	index one larger than the maximum index of the array on failure. */

@@ -1,8 +1,9 @@
 #include "TextInterface.h"
 #include "date.h" // date::currentDate()
 #include "FstreamHandler.h"
-#include "input.h" // askToContinue()
+#include "input.h" // askToContinue(), chooseYorN()
 #include <algorithm> // std::count_if
+#include <cassert>
 #include <exception> // std::runtime_exception
 #include <filesystem>
 #include <fstream>
@@ -37,6 +38,62 @@ bool TextInterface::add(std::string_view key, std::string_view noteString)
 	else
 	{
 		return false;
+	}
+}
+
+bool TextInterface::clear(std::string_view key)
+{
+	const indexArray_t notes{ findNotes(key) };
+	if (notes.size() == 0)
+	{
+		std::cout << "Key does not exist." << '\n';
+		return false;
+	}
+	printNotes(notes);
+	if (input::chooseYOrN("Clear ALL NOTES with key "
+		+ static_cast<std::string>(key) + " (Y/N)? "))
+	{
+		// the index of 'notes', *NOT* m_noteArray!
+		// need signed type (long) so that index doesn't rollover at 0
+		for (auto index{ static_cast<long>(notes.size() - 1) }; index >= 0; index--)
+		{
+			removeNote(notes[index]);
+			/* By deleting the notes backwards, none of the indices in 'notes'
+			* are invalidated by std::vector::erase(), which guarantees that
+			* any iterators at or after the erased element will be invalid. */
+		}
+	}
+	if (writeFile())
+	{
+		std::cout << "Deleted all notes with key " << key << ".\n";
+		return true;
+	}
+	else
+	{
+		std::cout << "Writing failed.\n";
+		return false;
+	}
+}
+
+bool TextInterface::clearAll()
+{
+	if (!input::chooseYOrN("CLEAR ALL NOTES (Y/N)? "))
+		return false;
+	else if (!input::chooseYOrN("ARE YOU SURE (Y/N)? "))
+		return false;
+	else
+	{
+		m_noteArray.clear();
+		if (writeFile())
+		{
+			std::cout << "Deleted all notes.\n";
+			return true;
+		}
+		else
+		{
+			std::cout << "Writing failed.\n";
+			return false;
+		}
 	}
 }
 
@@ -76,8 +133,7 @@ bool TextInterface::remove(std::string_view key)
 			return false;
 		note = m_noteArray.at(indexArray[index]);
 	}
-// this line be broken
-	m_noteArray.erase(std::find(std::begin(m_noteArray), std::end(m_noteArray), note));
+	removeNote(note);
 	if (writeFile())
 	{
 		const auto&[time, key, noteString]{ note };
@@ -85,8 +141,11 @@ bool TextInterface::remove(std::string_view key)
 			<< "\" created on " << time << '\n';
 		return true;
 	}
-	std::cout << "Writing failed.\n";
-	return false;
+	else
+	{
+		std::cout << "Writing failed.\n";
+		return false;
+	}
 }
 
 // private functions
@@ -231,6 +290,28 @@ bool TextInterface::printNumberedNotes(const indexArray_t& indexArray) const
 		i++;
 	}
 	return true;
+}
+
+void TextInterface::removeNote(std::size_t index)
+{
+	try
+	{
+		m_noteArray.erase(std::begin(m_noteArray) + index);
+	}
+	catch (std::out_of_range& ex)
+	{
+		assert(false && "removeNote() called with invalid index.");
+	}
+}
+
+void TextInterface::removeNote(const noteType_t& note)
+{
+	const auto iterator{
+		std::find(std::begin(m_noteArray), std::end(m_noteArray), note)
+	};
+	assert((iterator == std::end(m_noteArray))
+		&& "removeNote() called with invalid note. Note not found.");
+	m_noteArray.erase(iterator);
 }
 
 std::size_t TextInterface::selectANote(const indexArray_t& indexArray) const
