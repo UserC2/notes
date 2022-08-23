@@ -10,8 +10,8 @@ Notes are stored in `~/.notes.txt`
 
 |Flag	|Meaning|Example|Explanation|
 |-------|-------|-------|-----------|
-|-c |clear	|`notes -c`|Deletes all notes|
-|-c |clear	|`notes -c key`|Deletes all notes corresponding to `key`|
+|-c	|clear	|`notes -c`|Deletes all notes|
+|-c	|clear	|`notes -c key`|Deletes all notes corresponding to `key`|
 |-d	|delete	|`notes -d key`|Deletes the note corresponding to `key`|
 |-h	|help	|`notes -h`|Displays the program usage and flags|
 |-k	|keys	|`notes -k`|Prints a list of every key|
