@@ -7,14 +7,16 @@
 void printHelp()
 {
 	std::cout << "Usage: notes <flag> key note\n";
-	std::cout << "Flag\tName\tUsage\n";
-	std::cout << "-c\tclear\t-c or -c key\n";
-	std::cout << "-d\tdelete\t-d key\n";
-	std::cout << "-h\thelp\t-h\n";
-	std::cout << "-k\tkeys\t-k\n";
-	std::cout << "-p\tprint\t-p or -p key\n";
-	std::cout << "-r\trecall\t-r key\n";
-	std::cout << "-w\twrite\t-w key note\n";
+	std::cout << "Flag\tName\tUsage\t\tExplanation\n";
+	std::cout << "-c\tclear\t-c\t\tDelete **ALL** notes\n";
+	std::cout << "-c\tclear\t-c key\t\tDelete **ALL** notes corresponding to `key`\n";
+	std::cout << "-d\tdelete\t-d key\t\tDelete the note(s) corresponding to `key`\n";
+	std::cout << "-h\thelp\t-h\t\tDisplay this help prompt\n";
+	std::cout << "-k\tkeys\t-k\t\tPrint a list of every key\n";
+	std::cout << "-p\tprint\t-p\t\tPrint a list of every key, note, and the date each note was taken\n";
+	std::cout << "-p\tprint\t-p key\t\tEquivalent to `-r key`\n";
+	std::cout << "-r\trecall\t-r key\t\tPrint the note(s) corresponding to `key`\n";
+	std::cout << "-w\twrite\t-w key note\tAdd a note (`note`) accessible through `key`\n";
 }
 
 void fail()
