@@ -12,7 +12,7 @@ void printHelp()
 	std::cout << "-d\tdelete\t-d key\n";
 	std::cout << "-h\thelp\t-h\n";
 	std::cout << "-k\tkeys\t-k\n";
-	std::cout << "-p\tprint\t-p\n";
+	std::cout << "-p\tprint\t-p or -p key\n";
 	std::cout << "-r\trecall\t-r key\n";
 	std::cout << "-w\twrite\t-w key note\n";
 }
@@ -66,7 +66,10 @@ int main(int argc, char* argv[])
 		}
 		else if (argv[1] == constants::flagPrintAll)
 		{
-			notes.printAll();
+			if (!argv[2])
+        		notes.printAll();
+    	    if (!notes.recall(argv[2]))
+   	    		fail("Key does not exist.");
 		}
 		else if (argv[1] == constants::flagRecall)
 		{
