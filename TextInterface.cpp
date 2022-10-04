@@ -2,7 +2,7 @@
 #include "date.h" // date::currentDate()
 #include "FstreamHandler.h"
 #include "input.h" // askToContinue(), chooseYorN()
-#include <algorithm> // std::count_if
+#include <algorithm> // std::count_if, std::sort
 #include <cassert>
 #include <exception> // std::runtime_exception
 #include <filesystem>
@@ -148,6 +148,52 @@ bool TextInterface::remove(std::string_view key)
 	}
 }
 
+bool TextInterface::sortByDate()
+{
+	// if dates are the same, sort by keys
+	auto dateSort{
+		[&](const noteType_t& noteA, const noteType_t& noteB) -> bool {
+			return (getDate(noteA) == getDate(noteB))
+				? getKey(noteA) < getKey(noteB)
+				: getDate(noteA) < getDate(noteB);
+		}
+	};
+	std::sort(std::begin(m_noteArray), std::end(m_noteArray), dateSort);
+	if (writeFile())
+	{
+		std::cout << constants::sortByDateSuccess << '\n';
+		return true;
+	}
+	else
+	{
+		std::cout << "Writing failed.\n";
+		return false;
+	}
+}
+
+bool TextInterface::sortByKey()
+{
+	// if keys are the same, sort by dates
+	auto keySort{
+		[&](const noteType_t& noteA, const noteType_t& noteB) -> bool {
+			return (getKey(noteA) == getKey(noteB))
+				? getDate(noteA) < getDate(noteB)
+				: getKey(noteA) < getKey(noteB);
+		}
+	};
+	std::sort(std::begin(m_noteArray), std::end(m_noteArray), keySort);
+	if (writeFile())
+	{
+		std::cout << constants::sortByKeySuccess << '\n';
+		return true;
+	}
+	else
+	{
+		std::cout << "Writing failed.\n";
+		return false;
+	}
+}
+
 // private functions
 
 TextInterface::indexArray_t TextInterface::findAllNotes() const
@@ -190,6 +236,11 @@ TextInterface::keyArray_t TextInterface::findUniqueKeys() const
 			keys.push_back(getKey(note));
 	}
 	return keys;
+}
+
+std::string_view TextInterface::getDate(const noteType_t& note) const
+{
+	return std::get<static_cast<size_t>(NoteType::date)>(note);
 }
 
 std::string_view TextInterface::getKey(const noteType_t& note) const

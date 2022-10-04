@@ -51,6 +51,13 @@ public:
 	bool recall(std::string_view key) const;
 	/* Delete a note. Returns false if key doesn't exist. */
 	bool remove(std::string_view key);
+	/* Sorts notes in order of oldest to newest according to their date, and
+	* then alphabetically according to their key within the same date. Returns
+	* false if writing failed. */
+	bool sortByDate();
+	/* Sorts notes alphabetically according to their key. Returns false if
+	* writing failed. */
+	bool sortByKey();
 
 private:
 	/* Returns an array of indices of all notes. */
@@ -60,6 +67,8 @@ private:
 	indexArray_t findNotes(std::string_view key) const;
 	/* Returns array of all unique keys. */
 	keyArray_t findUniqueKeys() const;
+	/* Get a formatted date in a string from a noteType_t. */
+	std::string_view getDate(const noteType_t& note) const;
 	/* Get a key from a noteType_t. */
 	std::string_view getKey(const noteType_t& note) const;
 	/* Get a note from m_noteFile. */

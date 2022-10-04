@@ -17,8 +17,13 @@ namespace constants
 	constexpr std::string_view flagPrintKeys{ "-k" };
 	constexpr std::string_view flagPrintAll{ "-p" };
 	constexpr std::string_view flagRecall{ "-r" };
+	constexpr std::string_view flagSort{ "-s" };
 	constexpr std::string_view flagWrite{ "-w" };
 	constexpr std::string_view noteFilename{ "/data/data/com.termux/files/home/.notes.txt" };
+	constexpr std::string_view sortByDateSuccess{ "Sorted notes by date." };
+	constexpr std::string_view sortByKeySuccess{ "Sorted notes by key." };
+	constexpr std::string_view optionSortDate{ "date" };
+	constexpr std::string_view optionSortKey{ "key" };
 }
 
 #endif

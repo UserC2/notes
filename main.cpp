@@ -15,6 +15,8 @@ void printHelp()
 	std::cout << "-k\tkeys\t-k\t\tPrint a list of every key\n";
 	std::cout << "-p\tprint\t-p\t\tPrint a list of every key, note, and the date each note was taken\n";
 	std::cout << "-p\tprint\t-p key\t\tEquivalent to `-r key`\n";
+	std::cout << "-s\tsort\t-s date\t\tSort notes from oldest to newest, and alphabetically when dates are the same\n";
+	std::cout << "-s\tsort\t-s key\t\tSort notes alphabetically according to key, and from oldest to newest when keys are the same\n";
 	std::cout << "-r\trecall\t-r key\t\tPrint the note(s) corresponding to `key`\n";
 	std::cout << "-w\twrite\t-w key note\tAdd a note (`note`) accessible through `key`\n";
 }
@@ -79,6 +81,23 @@ int main(int argc, char* argv[])
         		fail("Key cannot be empty.");
     	    if (!notes.recall(argv[2]))
    	    		fail("Key does not exist.");
+		}
+		else if (argv[1] == constants::flagSort)
+		{
+			if (!argv[2])
+				fail("Invalid flag option.");
+			if (argv[2] == constants::optionSortDate)
+			{
+				if (!notes.sortByDate())
+					fail("Notes not sorted.");
+			}
+			else if (argv[2] == constants::optionSortKey)
+			{
+				if (!notes.sortByKey())
+					fail("Notes not sorted.");
+			}
+			else
+				fail("Invalid flag option.");
 		}
 		else if (argv[1] == constants::flagWrite)
 		{
