@@ -360,7 +360,7 @@ void TextInterface::removeNote(const noteType_t& note)
 	const auto iterator{
 		std::find(std::begin(m_noteArray), std::end(m_noteArray), note)
 	};
-	assert((iterator == std::end(m_noteArray))
+	assert((iterator != std::end(m_noteArray))
 		&& "removeNote() called with invalid note. Note not found.");
 	m_noteArray.erase(iterator);
 }
