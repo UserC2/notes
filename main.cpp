@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 		{
 			if (!argv[2])
 				fail("Key cannot be empty.");
-			if (!notes.remove(argv[2]))
+			else if (!notes.remove(argv[2]))
 				fail("Note not deleted.");
 		}
 		else if (argv[1] == constants::flagHelp)
@@ -72,21 +72,21 @@ int main(int argc, char* argv[])
 		{
 			if (!argv[2])
         		notes.printAll();
-    	    if (!notes.recall(argv[2]))
+    	    else if (!notes.recall(argv[2]))
    	    		fail("Key does not exist.");
 		}
 		else if (argv[1] == constants::flagRecall)
 		{
 			if (!argv[2])
         		fail("Key cannot be empty.");
-    	    if (!notes.recall(argv[2]))
+    	    else if (!notes.recall(argv[2]))
    	    		fail("Key does not exist.");
 		}
 		else if (argv[1] == constants::flagSort)
 		{
 			if (!argv[2])
 				fail("Invalid flag option.");
-			if (argv[2] == constants::optionSortDate)
+			else if (argv[2] == constants::optionSortDate)
 			{
 				if (!notes.sortByDate())
 					fail("Notes not sorted.");
