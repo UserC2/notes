@@ -155,7 +155,7 @@ bool TextInterface::sortByDate()
 		[&](const noteType_t& noteA, const noteType_t& noteB) -> bool {
 			return (getDate(noteA) == getDate(noteB))
 				? getKey(noteA) < getKey(noteB)
-				: getDate(noteA) < getDate(noteB);
+				: date::isOlder(getDate(noteA), getDate(noteB));
 		}
 	};
 	std::sort(std::begin(m_noteArray), std::end(m_noteArray), dateSort);
@@ -177,8 +177,12 @@ bool TextInterface::sortByKey()
 	auto keySort{
 		[&](const noteType_t& noteA, const noteType_t& noteB) -> bool {
 			return (getKey(noteA) == getKey(noteB))
-				? getDate(noteA) < getDate(noteB)
+				? date::isOlder(getDate(noteA), getDate(noteB))
 				: getKey(noteA) < getKey(noteB);
+			return (getDate(noteA) == getDate(noteB))
+				? getKey(noteA) < getKey(noteB)
+				: date::isOlder(getDate(noteA), getDate(noteB));
+
 		}
 	};
 	std::sort(std::begin(m_noteArray), std::end(m_noteArray), keySort);
@@ -367,7 +371,7 @@ void TextInterface::removeNote(const noteType_t& note)
 
 std::size_t TextInterface::selectANote(const indexArray_t& indexArray) const
 {
-	std::cout << "Enter the number corresponding a note.\n";
+	std::cout << "Enter the number corresponding to a note.\n";
 	std::cout << "Enter any negative number to cancel.\n";
 	while (true)
 	{
